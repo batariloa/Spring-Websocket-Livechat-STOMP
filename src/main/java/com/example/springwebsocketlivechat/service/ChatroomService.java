@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class ChatroomService {
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final MessageService messageService;
     private final ChatroomUsersManager chatroomUsersManager;
@@ -20,6 +20,17 @@ public class UserService {
         sendUserList(chatroomId);
         //send leave message
         messageService.sendLeaveMessageToChatRoom(chatroomId, username);
+
+    }
+
+    public void join(String chatroomId, String username){
+        System.out.println("User joining: " + username);
+
+
+
+        chatroomUsersManager.addUserToChatroom(chatroomId, username);
+        sendUserList(chatroomId);
+        messageService.sendJoinMessageToChatRoom(chatroomId, username);
 
     }
 
