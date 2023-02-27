@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+
 @SpringBootTest
 public class MessageServiceTest {
 
@@ -42,7 +43,7 @@ public class MessageServiceTest {
     }
 
     @Test
-    public void sendJoinMessageToChatRoomCallsMessagingTemplate() {
+    public void sendJoinMessageToChatRoomTest() {
 
         messageService.sendJoinMessageToChatRoom(chatroomId, username);
 
