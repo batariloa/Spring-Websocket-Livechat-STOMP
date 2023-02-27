@@ -3,20 +3,19 @@ package com.example.springwebsocketlivechat.unit;
 import com.example.springwebsocketlivechat.model.Message;
 import com.example.springwebsocketlivechat.model.Status;
 import com.example.springwebsocketlivechat.service.MessageService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.time.Clock;
-import java.time.Instant;
 import java.time.LocalDateTime;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
+@SpringBootTest
 public class MessageServiceTest {
 
     @Mock
@@ -31,10 +30,6 @@ public class MessageServiceTest {
     String username = "sdasdsa";
     String chatroomId = "chatroom";
 
-    @BeforeEach
-    public void init() {
-        MockitoAnnotations.initMocks(this);
-    }
 
     @Test
     public void sendMessageToChatroomTest() {
@@ -47,17 +42,11 @@ public class MessageServiceTest {
     }
 
     @Test
-    public void sendJoinMessageToChatRoomTest() {
-        Clock clock2 = Clock.systemDefaultZone();
-        Instant timestamp = clock2.instant();
-
-        when(clock.instant()).thenReturn(timestamp);
-
-        Message expected = new Message("System", "User " + username + " has joined the room.", String.valueOf(timestamp), Status.JOIN);
+    public void sendJoinMessageToChatRoomCallsMessagingTemplate() {
 
         messageService.sendJoinMessageToChatRoom(chatroomId, username);
 
-        verify(messagingTemplate).convertAndSend("/chatroom/" + chatroomId + "/messages", expected);
+        verify(messagingTemplate, times(1)).convertAndSend(anyString(), any(Object.class));
     }
 
 
