@@ -80,7 +80,7 @@ public class ChatController {
 
 
     @GetMapping("/chatrooms")
-    public ResponseEntity<Map<String, List<User>>> getChatrooms() {
+    public ResponseEntity<Map<String, List<User>>> getChatRooms() {
         Map<String, List<User>> chatroomUsers = chatroomUsersManager.getAllChatroomUsers();
         return ResponseEntity.ok(chatroomUsers);
     }
