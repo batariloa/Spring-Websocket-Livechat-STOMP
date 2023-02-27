@@ -7,13 +7,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalTime;
+import java.time.Clock;
 
 
 @Service
 @RequiredArgsConstructor
 public class MessageService {
     private final SimpMessagingTemplate messagingTemplate;
+
+    private final Clock clock;
 
 
     public void sendMessageToChatroom(
@@ -28,14 +30,14 @@ public class MessageService {
             String chatroomId,
             String username
     ) {
-        messagingTemplate.convertAndSend("/chatroom/" + chatroomId + "/messages", new Message("System", "User " + username + " has joined the room.", String.valueOf(LocalTime.now()), Status.JOIN));
+        messagingTemplate.convertAndSend("/chatroom/" + chatroomId + "/messages", new Message("System", "User " + username + " has joined the room.", String.valueOf(clock.instant()), Status.JOIN));
     }
 
     public void sendLeaveMessageToChatRoom(
             String chatroomId,
             String username
     ) {
-        messagingTemplate.convertAndSend("/chatroom/" + chatroomId + "/messages", new Message("System", "User " + username + " has left the room.", String.valueOf(LocalTime.now()), Status.LEAVE));
+        messagingTemplate.convertAndSend("/chatroom/" + chatroomId + "/messages", new Message("System", "User " + username + " has left the room.", String.valueOf(clock.instant()), Status.LEAVE));
     }
 
 
