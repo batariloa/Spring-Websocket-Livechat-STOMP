@@ -2,6 +2,7 @@ package com.example.springwebsocketlivechat.controller;
 
 import com.example.springwebsocketlivechat.manager.ChatroomUsersManager;
 import com.example.springwebsocketlivechat.model.Message;
+import com.example.springwebsocketlivechat.model.User;
 import com.example.springwebsocketlivechat.service.ChatroomService;
 import com.example.springwebsocketlivechat.service.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,15 +28,9 @@ public class ChatController {
     private final MessageService messageService;
     private final ChatroomService chatroomService;
 
-    @MessageMapping("/message")
-    @SendTo("/chatroom/public")
-    private Message receivePublicMessage(@Payload Message message) {
-
-        return message;
-    }
 
     @MessageMapping("/chatroom/{room}/sendMessage")
-    public void sendMessage(
+    public void sendMessageToChatRoom(
             @DestinationVariable String room,
             @Payload Message message
     ) {
@@ -52,31 +46,15 @@ public class ChatController {
     ) {
 
         if (headerAccessor.getSessionAttributes() == null) return;
-        
+
         headerAccessor.getSessionAttributes()
                       .put("chatroomId", chatroomId);
         headerAccessor.getSessionAttributes()
                       .put("username", username);
 
-        chatroomService.join(chatroomId, username);
-    }
+        String sessionId = headerAccessor.getSessionId();
 
-
-    @MessageMapping("/leaveChatroom")
-    public void leaveChatroom(
-            @Payload String chatroomId,
-            SimpMessageHeaderAccessor headerAccessor
-    ) {
-
-        // Get the username from the user's session attributes
-        if (headerAccessor.getSessionAttributes() != null) {
-            String username = (String) headerAccessor.getSessionAttributes()
-                                                     .get("username");
-            chatroomService.leave(chatroomId, username);
-        }
-        // Remove the user from the specified chatroom
-
-
+        chatroomService.join(chatroomId, sessionId, username);
     }
 
 
@@ -96,14 +74,14 @@ public class ChatController {
 
         if (username != null) {
 
-            chatroomService.leave(chatroomId, username);
+            chatroomService.leave(chatroomId, event.getSessionId());
         }
     }
 
 
     @GetMapping("/chatrooms")
-    public ResponseEntity<Map<String, List<String>>> getChatrooms() {
-        Map<String, List<String>> chatroomUsers = chatroomUsersManager.getAllChatroomUsers();
+    public ResponseEntity<Map<String, List<User>>> getChatrooms() {
+        Map<String, List<User>> chatroomUsers = chatroomUsersManager.getAllChatroomUsers();
         return ResponseEntity.ok(chatroomUsers);
     }
 

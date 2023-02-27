@@ -12,10 +12,15 @@ public class ChatroomService {
     private final MessageService messageService;
     private final ChatroomUsersManager chatroomUsersManager;
 
-    public void leave(String chatroomId, String username){
+    public void leave(
+            String chatroomId,
+            String sessionId
+
+    ) {
+        String username = chatroomUsersManager.getUsernameForSession(sessionId);
         System.out.println("User leaving." + username);
         //remove user
-        chatroomUsersManager.removeUserFromChatroom(chatroomId, username);
+        chatroomUsersManager.removeUserFromChatroom(chatroomId, sessionId);
         //send new user list
         sendUserList(chatroomId);
         //send leave message
@@ -23,19 +28,23 @@ public class ChatroomService {
 
     }
 
-    public void join(String chatroomId, String username){
+    public void join(
+            String chatroomId,
+            String sessionId,
+            String username
+    ) {
+
         System.out.println("User joining: " + username);
 
 
-
-        chatroomUsersManager.addUserToChatroom(chatroomId, username);
+        chatroomUsersManager.addUserToChatroom(chatroomId, sessionId, username);
         sendUserList(chatroomId);
         messageService.sendJoinMessageToChatRoom(chatroomId, username);
 
     }
 
 
-    public void sendUserList(String chatroomId){
+    public void sendUserList(String chatroomId) {
         simpMessagingTemplate.convertAndSend("/chatroom/" + chatroomId + "/users", chatroomUsersManager.getUsersInChatroom(chatroomId));
     }
 
