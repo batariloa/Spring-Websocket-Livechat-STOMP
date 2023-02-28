@@ -30,14 +30,18 @@ public class MessageService {
             String chatroomId,
             String username
     ) {
-        messagingTemplate.convertAndSend("/chatroom/" + chatroomId + "/messages", new Message("System", "User " + username + " has joined the room.", String.valueOf(clock.instant()), Status.JOIN));
+        messagingTemplate.convertAndSend("/chatroom/" + chatroomId + "/messages", new Message("System", "User " + username + " has joined the room.", clock.instant()
+                                                                                                                                                           .atZone(clock.getZone())
+                                                                                                                                                           .toLocalTime(), Status.JOIN));
     }
 
     public void sendLeaveMessageToChatRoom(
             String chatroomId,
             String username
     ) {
-        messagingTemplate.convertAndSend("/chatroom/" + chatroomId + "/messages", new Message("System", "User " + username + " has left the room.", String.valueOf(clock.instant()), Status.LEAVE));
+        messagingTemplate.convertAndSend("/chatroom/" + chatroomId + "/messages", new Message("System", "User " + username + " has left the room.", clock.instant()
+                                                                                                                                                         .atZone(clock.getZone())
+                                                                                                                                                         .toLocalTime(), Status.LEAVE));
     }
 
 

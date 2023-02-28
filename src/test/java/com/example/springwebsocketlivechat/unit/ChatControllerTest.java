@@ -13,13 +13,14 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 
-import java.time.LocalDateTime;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Objects;
 
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class ChatControllerTest {
@@ -27,6 +28,12 @@ public class ChatControllerTest {
 
     @Mock
     private MessageService messageService;
+
+    @Mock
+    Clock clock;
+
+    private Clock fixedClock;
+
 
     @Mock
     private ChatroomService chatroomService;
@@ -40,8 +47,16 @@ public class ChatControllerTest {
 
     @Test
     public void testReceiveChatroomMessage() {
+        fixedClock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+        doReturn(fixedClock.instant()).when(clock)
+                                      .instant();
+        doReturn(fixedClock.getZone()).when(clock)
+                                      .getZone();
 
-        Message message = new Message("John", "Hello!", String.valueOf(LocalDateTime.now()), Status.MESSAGE);
+
+        Message message = new Message("John", "Hello!", clock.instant()
+                                                             .atZone(clock.getZone())
+                                                             .toLocalTime(), Status.MESSAGE);
 
 
         chatController.sendMessageToChatRoom(chatRoom, message);
