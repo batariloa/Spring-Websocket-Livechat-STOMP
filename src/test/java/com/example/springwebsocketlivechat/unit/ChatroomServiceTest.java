@@ -10,7 +10,6 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
@@ -64,7 +63,7 @@ public class ChatroomServiceTest {
     void sendUserList() {
 
         //mock user list
-        List users = Arrays.asList(new User());
+        List<User> users = List.of(new User());
 
         //when calling the user manager for room members, return the mocked list
         doReturn(users).when(chatroomUsersManager)
