@@ -17,9 +17,9 @@ pipeline {
     stage('Deploy') {
       steps {
         sh """
-          rsync -av . ec2-user@APP_PRIVATE_IP:/home/ec2-user/app
+          rsync -av . ec2-user@172.31.18.120:/home/ec2-user/app
 
-          ssh ec2-user@APP_PRIVATE_IP '
+          ssh ec2-user@172.31.18.120 '
             cd app &&
             docker build -t spring-app .
             docker stop spring-app || true
