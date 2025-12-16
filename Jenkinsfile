@@ -3,6 +3,12 @@ pipeline {
 
   stages {
     stage('Build') {
+      agent {
+        docker {
+          image 'maven:3.9-eclipse-temurin-17'
+          args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+      }
       steps {
         sh 'mvn clean package'
       }
@@ -11,9 +17,9 @@ pipeline {
     stage('Deploy') {
       steps {
         sh """
-          rsync -av . ec2-user@172.31.18.120:/home/ec2-user/app
+          rsync -av . ec2-user@APP_PRIVATE_IP:/home/ec2-user/app
 
-          ssh ec2-user@172.31.18.120 '
+          ssh ec2-user@APP_PRIVATE_IP '
             cd app &&
             docker build -t spring-app .
             docker stop spring-app || true
