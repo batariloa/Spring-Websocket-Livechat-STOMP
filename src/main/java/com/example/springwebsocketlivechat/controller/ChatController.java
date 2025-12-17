@@ -35,7 +35,6 @@ public class ChatController {
             @Payload Message message
     ) {
         // logic to handle the message and broadcast it to all subscribers
-        // dummy change to trigger webhook
         messageService.sendMessageToChatroom(room, message);
     }
 
