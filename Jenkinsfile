@@ -14,19 +14,40 @@ pipeline {
       }
     }
 
+    stage('Docker Build & Push') {
+      steps {
+        sh '''
+          aws ecr get-login-password --region eu-central-1 \
+          | docker login \
+            --username AWS \
+            --password-stdin 727646476288.dkr.ecr.eu-central-1.amazonaws.com
+
+          docker build -t demo-app .
+
+          docker tag demo-app:latest \
+            727646476288.dkr.ecr.eu-central-1.amazonaws.com/demo-app:latest
+
+          docker push \
+            727646476288.dkr.ecr.eu-central-1.amazonaws.com/demo-app:latest
+        '''
+      }
+    }
+
     stage('Deploy') {
       steps {
-        sh """
-          rsync -av . ec2-user@172.31.18.120:/home/ec2-user/app
-
-          ssh ec2-user@172.31.18.120 '
-            cd app &&
-            docker build -t spring-app .
-            docker stop spring-app || true
-            docker rm spring-app || true
-            docker run -d --name spring-app -p 8081:8080 spring-app
-          '
-        """
+        sh '''
+          aws ssm send-command \
+            --instance-ids i-017dc1740f0268329 \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy new version" \
+            --parameters commands='[
+              "docker pull 727646476288.dkr.ecr.eu-central-1.amazonaws.com/demo-app:latest",
+              "docker stop spring-app || true",
+              "docker rm spring-app || true",
+              "docker run -d --name spring-app -p 80:8080 727646476288.dkr.ecr.eu-central-1.amazonaws.com/demo-app:latest"
+            ]' \
+            --region eu-central-1
+        '''
       }
     }
   }
